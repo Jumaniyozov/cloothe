@@ -1,33 +1,35 @@
 const MySQL = require('../helpers/mysqlUtils.js')
 const Sequelize = require('sequelize');
-const Channel = MySQL.define('channel', {
+const Catalogue = require('./Catalogue');
+
+const ClotheVariation = MySQL.define('variation', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    name: {
-        type: Sequelize.STRING,
-        unique: true,
-        // allowNull: true
-    },
-    url: {
-        type: Sequelize.STRING,
-        // unique: true,
-        allowNull: true
-    },
-    desc_ru: {
+    nameRu: {
         type: Sequelize.STRING,
     },
-    desc_uz: {
+    nameUz: {
         type: Sequelize.STRING,
     },
-    is_channel: {
+    captionRu: {
+        type: Sequelize.STRING,
+    },
+    captionUz: {
+        type: Sequelize.STRING,
+    },
+    clothe: {
         type: Sequelize.INTEGER,
     },
-
+    photoUrl: {
+        type: Sequelize.STRING,
+    },
 }, {
-    timestamps: true
+    timestamps: false
 });
 
-module.exports = Channel;
+ClotheVariation.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'ID'});
+
+module.exports = ClotheVariation;

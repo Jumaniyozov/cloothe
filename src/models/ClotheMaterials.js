@@ -1,36 +1,35 @@
 const MySQL = require('../helpers/mysqlUtils.js')
 const Sequelize = require('sequelize');
-const User = MySQL.define('user', {
+const Catalogue = require('./Catalogue');
+
+const ClotheMaterial = MySQL.define('material', {
     id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    user_id: {
+    nameRu: {
+        type: Sequelize.STRING,
+    },
+    nameUz: {
+        type: Sequelize.STRING,
+    },
+    captionRu: {
+        type: Sequelize.STRING,
+    },
+    captionUz: {
+        type: Sequelize.STRING,
+    },
+    clothe: {
         type: Sequelize.INTEGER,
-        unique: true,
     },
-    username: {
-        type: Sequelize.STRING,
-        unique: true
-    },
-    lastName: {
+    photoUrl: {
         type: Sequelize.STRING,
     },
-    firstName: {
-        type: Sequelize.STRING,
-    },
-    language: {
-        type: Sequelize.STRING,
-    },
-    phone: {
-        type: Sequelize.STRING,
-    },
-    status: {
-        type: Sequelize.INTEGER,
-    }
 }, {
-    timestamps: true
+    timestamps: false
 });
 
-module.exports = User;
+ClotheMaterial.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'ID'});
+
+module.exports = ClotheMaterial;

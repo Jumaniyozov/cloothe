@@ -1,32 +1,27 @@
 const MySQL = require('../helpers/mysqlUtils.js')
 const Sequelize = require('sequelize');
-const Post = MySQL.define('post', {
-    id: {
+const Catalogue = MySQL.define('catalog', {
+    ID: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    companyName: {
+    clotheType: {
         type: Sequelize.STRING,
     },
-    companyContacts: {
+    photoUrl: {
         type: Sequelize.STRING,
     },
-    companyAuditory: {
+    ruName: {
         type: Sequelize.STRING,
-    },
-    companyAuditoryAge: {
-        type: Sequelize.STRING,
-    },
-    companyStartPub: {
-        type: Sequelize.STRING,
-    },
-    companyEndPub: {
-        type: Sequelize.STRING,
-    },
 
+    },
+    uzName: {
+        type: Sequelize.STRING,
+
+    },
 }, {
-    timestamps: true
+    timestamps: false
 });
 
-module.exports = Post;
+module.exports = Catalogue;

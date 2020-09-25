@@ -1,37 +1,52 @@
-greeting: <b>Salom ${uppercase(from.first_name)}!</b>
-menuPolicy:  Yuklash talablari
-menuRequest: Sorovnoma qoldirish
-menuAbout: Biz haqimizda
-mainMenuBack: Tilni tanlashga qaytish
-menuCountry:  Mamlakatni o'zgartirish
-menuPrice: Narxlarni ko'rsatish
-menuLanguage: Tilni o'zgartirish
-menuCountryChoose: Iltimos mamlakatni tanlang
-menuBack: Ortga
-policyMenuReq: Monopoliyaga qarshi kurashish qo'mitasi talablari
-chanelSample: Post namunasi
-chanelReq: Talablar
-chanelPolicy: Iltimos yuklash shartlari bilan tanishib chiqing
-chanelLink: Manzil
-antimonoReq: Iltimos qo'mita talablari bilan tanishib chiqing
-reqCompanyName: Iltimos korxona nomini kiriting
-reqCompanyContacts: Iltimos aloqa ma'lumotlarini kiriting
-reqCompanyAuditory: Iltimos auditoriya turini tanlang
-reqCompanyAuditoryAge: Iltimos auditoriya yoshini tanlang
-reqCompanyStartPub: Iltimos boshlang'ich yuklash sanasini kiriting
-reqCompanyEndPub: Iltimos yakuniy yuklash sanasini kiriting
-compName: Korxona nomi
-compContacts: Korxona ma'lumotlari
-companyAuditory: Auditoriya turi
-companyAuditoryAge: Auditoriya yoshi
-compStartPubDate: Boshlang'ich yuklash sanasi
-compEndPubDate: Yakuniy yuklash sanasi
-emptyPost:  Hozircha ma'lumotlar yo'q
-reqStatus: So'rovnomangiz ko'rilish holatida
-regMessage: Iltimos ro'yxatdan o'ting
-mainMenu: Asosiy lavha
-requestCompleteMsg: Sizning so'rovnomangiz qabul qilindi. Yaqin orada mutaxassislarimiz siz bilan bo'glanadi
-audTypeMale: Erkak
-audTypeFemale: Ayol
-audTypeBoth: Aralash
-reqContinue: Davom etish
+menuCatalog: 📖 Katalog
+menuPrint: 🖨️ Maxsus Print
+menuQA: ⁉️ Savollarga Javoblar
+menuAsk: 🙋 Savol berish
+menuAbout: 📋 Biz haqimizda
+menuLanguage: 🌐  Tilni o'zgartirish
+mainMenuBack: Til tanlashga qaytish
+menuBack: ◀️ Ortga
+mainMenu: Asosiy Lavha
+mainFrequentQstn:  ⁉️ Ko'p so'raladigan savollarga javoblar
+
+askQuestionConfirm: 🖅 Ha
+askQuestionAnswer: Javob berish?
+askQuestionSent: Savolingiz mutaxassislarga yuborildi
+askQuestionCall: Javob kutmoqda
+
+catalogClotheType: Iltimos kiyim turini tanlang
+catalogClotheStyle: Iltimos kiyim ko'rinishini tanlang
+catalogClotheMaterial: Iltimos kiyim mato turini tanlang
+catalogClotheSize: Iltimos kiyim o'lachamini tanlang
+catalogClotheContinue: Davom etish
+catalogClotheQuantity: Iltimos qiymatini tanlang
+catalogClotheMultipleQuantity: Iltimos o'lchamlarni qiymatini tanlang
+catalogClotheContactName: Iltimos ismingizni kiriting
+catalogClotheContactPhone: Iltimos telefor raqamingizni kiriting
+catalogClotheAskLocaction: Iltimos mo'ljalni yuboring yoki kiriting
+catalogClotheSendLocation: Mo'ljalni yuborish
+catalogClotheConfirm: Iltimos tasdiqlang
+catalogClotheConfirmed: tasdiqlash
+
+langChoose: Iltimos tilni tanlang
+
+catalogClothConfirmClotheSize: Kiyim o'lchami
+catalogClothConfirmClotheQuantity: Kiyim qiymati
+catalogClothConfirmClotheSSize: O'lcham
+catalogClothConfirmClotheSQty: Qiymat
+catalogClothConfirmClotheMQty: Kiyim o'lchami va qiymati
+catalogClothConfirmClotheAdress:  Yetkazib berish mo'ljali
+catalogClothConfirmClotheType:  Kiyim turi
+catalogClothConfirmClotheStyle:  Kiyim ko'rinishi
+catalogClothConfirmClotheMat:  Mato turi
+catalogClothConfirmClotheContact:  Mijoz ismi
+catalogClothConfirmClotheNumber:  Mijoz raqami
+
+printingStyle: Iltimos kiyim bosma turini tanlang
+printingPhotoSend: Iltimos suratni rasm shaklida yuboring
+printingPhotoUploading: Iltimos suratingiz ishlanyapti kuting
+printingOrder: Buyurtma berish
+
+requestCompleteMsg: Buyurtmangiz qabul qilindi. Yaqin orada mutaxassislarimiz siz bilan bog'lanishadi.
+
+greeting: Salom

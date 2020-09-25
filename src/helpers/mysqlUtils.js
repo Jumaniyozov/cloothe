@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-require('dotenv').config()
+const config = require('../../config.json');
 class MySQL {
 	constructor(host, login, password, basename) {
 		this.connection = new Sequelize(basename, login, password, {
@@ -11,5 +11,5 @@ class MySQL {
 		});
 	}
 }
-const mysql = new MySQL(process.env.DB_HOST,process.env.USERNAME, process.env.DB_PASSWORD, process.env.DB_BASE)
+const mysql = new MySQL(config.host, config.username, config.password, config.basename)
 module.exports = mysql.connection;
