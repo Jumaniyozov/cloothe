@@ -13,6 +13,8 @@ askQuestionConfirm: 🖅 Ha
 askQuestionAnswer: Javob berish?
 askQuestionSent: Savolingiz mutaxassislarga yuborildi
 askQuestionCall: Javob kutmoqda
+askQuestionDone: Javob berdi
+askQuestionUserMessage: Salom, savolingizga javob
 
 catalogClotheType: Iltimos kiyim turini tanlang
 catalogClotheStyle: Iltimos kiyim ko'rinishini tanlang

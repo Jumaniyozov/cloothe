@@ -110,34 +110,36 @@ bot.use(async ctx => {
                     {message_id: ctx.update.message.reply_to_message.message_id}
             })
 
-            qstn.answer = ctx.update.message.text;
-            qstn.answered = ctx.update.message.from.username;
-            qstn.message_status = 'Отвечено';
-            await qstn.save();
+            if (!qstn.answer) {
 
-            const sendMarkup = `
-<b>Здравствуйте ответ на ваш вопрос</b>
+                qstn.answer = ctx.update.message.text;
+                qstn.answered = ctx.update.message.from.username;
+                qstn.message_status = `${ctx.i18n.t('askQuestionDone')}: ${qstn.answered}`;
+                console.log(qstn.message_status);
+                await qstn.save();
+
+                const sendMarkup = `
+<b>${ctx.i18n.t('askQuestionUserMessage')}</b>
 <i>${qstn.question}</i>\n
 ${qstn.answer}
 `
 
-            bot.telegram.sendMessage(qstn.user_id, sendMarkup, {
-                parse_mode: "HTML",
-            });
+                bot.telegram.sendMessage(qstn.user_id, sendMarkup, {
+                    parse_mode: "HTML",
+                });
 
-            bot.telegram.editMessageReplyMarkup('-1001450276522', qstn.message_id, '',
-                {
-                    reply_markup: {
+                bot.telegram.editMessageReplyMarkup('-1001450276522', qstn.message_id, null,
+                    {
                         inline_keyboard: [[{
                             text: `${qstn.message_status}`,
                             callback_data: `${qstn.message_status}`
                         }]]
-                    }
-                })
+
+                    })
+            }
         }
     }
 })
-
 
 
 bot.startPolling()
