@@ -9,8 +9,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@admin-bro/express": "^3.0.0",
+    "@admin-bro/sequelize": "^1.1.1",
+    "admin-bro": "^3.2.5",
     "axios": "^0.20.0",
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-formidable": "^1.2.0",
     "lodash": "^4.17.20",
     "moment": "^2.27.0",
     "mysql2": "^2.1.0",

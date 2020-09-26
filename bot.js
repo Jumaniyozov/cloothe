@@ -4,6 +4,7 @@ const path = require('path');
 const I18n = require('telegraf-i18n');
 const MySQLSession = require('telegraf-session-mysql');
 const Stage = require('telegraf/stage');
+const adminApp = require('./admin panel/admin');
 
 const Question = require('./src/models/Questions');
 
@@ -140,3 +141,4 @@ ${qstn.answer}
 
 
 bot.startPolling()
+adminApp.listen(3000, () => console.log('AdminBro is under localhost:3000/admin'))

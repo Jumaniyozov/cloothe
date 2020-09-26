@@ -15,12 +15,11 @@ const ClotheSize = MySQL.define('size', {
         type: Sequelize.STRING,
     },
     clothe: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
     }
 }, {
     timestamps: false
 });
 
 ClotheSize.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'ID'});
-
 module.exports = ClotheSize;
