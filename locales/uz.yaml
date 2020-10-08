@@ -6,8 +6,27 @@ menuAbout: 📋 Biz haqimizda
 menuLanguage: 🌐  Tilni o'zgartirish
 mainMenuBack: Til tanlashga qaytish
 menuBack: ◀️ Ortga
+menuMainBack: ◀️ Asosiy Lavha
 mainMenu: Asosiy Lavha
 mainFrequentQstn:  ⁉️ Ko'p so'raladigan savollarga javoblar
+menuCatalogueCart: 🛒️ Savat
+menuConfirmOrder: 📦 Buyurtmani tasdiqlash
+menuCleanCart: 🛒️ Savatni bo'shatish
+
+
+cartText: Sizning buyurtmangiz
+cartClean: Savatingiz bo'shatildi
+cartEmpty: Hozircha savatingiz bo'sh
+cartOrderConfirm: Iltimos buyurtmani tasdiqlang
+orderSendText: Buyurtma
+
+cartCategory:  Toifasi
+cartStyle:  Turi
+cartSize:  O'lchami
+cartQty:  Qiymati
+cartPrice:  Narxi
+cartTotalPrice:  Umumiy narxi
+cartShot: ta
 
 askQuestionConfirm: 🖅 Ha
 askQuestionAnswer: Javob berish?
@@ -16,11 +35,11 @@ askQuestionCall: Javob kutmoqda
 askQuestionDone: Javob berdi
 askQuestionUserMessage: Salom, savolingizga javob
 
-catalogClotheType: Iltimos kiyim turini tanlang
-catalogClotheStyle: Iltimos kiyim ko'rinishini tanlang
+catalogClotheType: Iltimos kiyim toifasini tanlang
+catalogClotheStyle: Iltimos kiyim turini tanlang
 catalogClotheMaterial: Iltimos kiyim mato turini tanlang
 catalogClotheSize: Iltimos kiyim o'lachamini tanlang
-catalogClotheContinue: Davom etish
+catalogClotheContinue: Savatga qo'shish
 catalogClotheQuantity: Iltimos qiymatini tanlang
 catalogClotheMultipleQuantity: Iltimos o'lchamlarni qiymatini tanlang
 catalogClotheContactName: Iltimos ismingizni kiriting
@@ -29,6 +48,7 @@ catalogClotheAskLocaction: Iltimos mo'ljalni yuboring yoki kiriting
 catalogClotheSendLocation: Mo'ljalni yuborish
 catalogClotheConfirm: Iltimos tasdiqlang
 catalogClotheConfirmed: tasdiqlash
+catalogCartAdded: Kiyim savatga qo'shildi
 
 langChoose: Iltimos tilni tanlang
 

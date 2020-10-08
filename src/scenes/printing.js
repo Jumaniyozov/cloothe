@@ -145,18 +145,26 @@ module.exports.printingSceneEnter = (bot, I18n) => {
         } else {
             printingClothe = await PrintingDetails.findAll({where: {nameUz: ctx.session.printingCoordinatesName}})
         }
-
-
-        const coordinatey = Number(printingClothe[0].coordinatey);
-        const coordinatex = Number(printingClothe[0].coordinatex);
         const photoName = printingClothe[0].photoName;
-        const resizeWidth = printingClothe[0].resizeWidth;
-        const resizeHeight = printingClothe[0].resizeHeight;
 
         ctx.session.printingProps.fi = path.resolve(__dirname, '../images/', `${ctx.from.id}_inputPhoto.jpg`);
         ctx.session.printingProps.fo = path.resolve(__dirname, '../images/', `${ctx.from.id}_outputPhoto.jpg`);
         ctx.session.printingProps.outputPhoto = path.resolve(__dirname, '../images/', `${ctx.from.id}_finale.jpg`);
-        const inputPhoto = path.resolve(__dirname, '../images/', `${photoName}`);
+        const inputPhoto = path.resolve(__dirname, '../images/settings', `${photoName}`);
+
+        const ddd = await sharp(inputPhoto)
+        const sizes = await ddd.metadata();
+
+
+        const coordinatey = Math.floor(Number(sizes.width / printingClothe[0].coordinatey));
+        const coordinatex = Math.floor(Number(sizes.height / printingClothe[0].coordinatex));
+
+        const resizeWidth = Math.floor(sizes.width / printingClothe[0].resizeWidth);
+        const resizeHeight = Math.floor(sizes.height / printingClothe[0].resizeHeight);
+
+
+
+
 
 
         await uploadPrice(ctx);
@@ -588,6 +596,8 @@ ${writtenAdress ? writtenAdress : '\n'}`
     printingEndScene.on('text', async (ctx) => {
         if (ctx.message.text === `${ctx.i18n.t('catalogClotheConfirmed')}`) {
 
+            const pathe = path.resolve(__dirname, '../images', `${ctx.from.id}_inputPhoto.jpg`);
+
             await bot.telegram.sendPhoto('-1001323833574', {
                 source: ctx.session.printingProps.outputPhoto,
                 filename: `${ctx.from.id}_finale.jpg`
@@ -597,6 +607,10 @@ ${writtenAdress ? writtenAdress : '\n'}`
                     ctx.session.printingProps.printingContactAdressLatLon.latitude,
                     ctx.session.printingProps.printingContactAdressLatLon.longitude);
             }
+            await bot.telegram.sendPhoto('-1001323833574', {
+                source: pathe,
+                filename: `${ctx.from.id}_inputPhoto.jpg`
+            });
 
             fs.unlink(ctx.session.printingProps.fi, (err) => err ? console.log(err) : null);
             fs.unlink(ctx.session.printingProps.fo, (err) => err ? console.log(err) : null);
@@ -626,7 +640,6 @@ async function uploadPrice(ctx) {
 
     const res = await axios.get(fileUrl);
 
-    // console.log(res.data.result.file_path);
 
     const url = `https://api.telegram.org/file/bot${process.env.TGTOKEN}/${res.data.result.file_path}`
 

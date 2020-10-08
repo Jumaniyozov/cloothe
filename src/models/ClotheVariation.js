@@ -26,6 +26,9 @@ const ClotheVariation = MySQL.define('variation', {
     photoUrl: {
         type: Sequelize.STRING,
     },
+    price: {
+        type: Sequelize.FLOAT
+    }
 }, {
     timestamps: false
 });

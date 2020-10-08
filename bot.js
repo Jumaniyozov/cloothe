@@ -7,6 +7,7 @@ const Stage = require('telegraf/stage');
 const adminApp = require('./admin panel/admin');
 
 const Question = require('./src/models/Questions');
+const User = require('./src/models/User');
 
 const i18n = new I18n({
     directory: path.resolve(__dirname, 'locales'),
@@ -31,17 +32,21 @@ const languageScene = require('./src/scenes/language')();
 const mainScene = require('./src/scenes/main')(bot, I18n);
 const aboutScene = require('./src/scenes/about')(bot);
 const catalogueScene = require('./src/scenes/catalogue');
+const orderScene = require('./src/scenes/Order');
 const askQuestionScene = require('./src/scenes/askQuestion')(bot, I18n);
+const cartScene = require('./src/scenes/cart')(bot, I18n);
 const catalogueEnterScene = catalogueScene.catalogueEnterScene(bot, I18n);
 const catalogueVariationScene = catalogueScene.catalogueVariationScene(bot, I18n);
-const catalogueMaterialScene = catalogueScene.catalogueMaterialScene(bot, I18n);
+// const catalogueMaterialScene = catalogueScene.catalogueMaterialScene(bot, I18n);
 const catalogueSizeScene = catalogueScene.catalogueSizeScene(bot, I18n);
 const catalogueQuantityScene = catalogueScene.catalogueQuantityScene(bot, I18n);
 const catalogueSceneMultipleQuantity = catalogueScene.catalogueSceneMultipleQuantity(bot, I18n);
-const catalogueContactNameScene = catalogueScene.catalogueContactNameScene(bot, I18n);
-const catalogueContactPhoneScene = catalogueScene.catalogueContactPhoneScene(bot, I18n)
-const catalogueEndScene = catalogueScene.catalogueEndScene(bot, I18n);
-const catalogueContactLocationScene = catalogueScene.catalogueContactLocationScene(bot, I18n);
+const catalogueAddToCartScene = catalogueScene.catalogueAddToCartScene(bot, I18n);
+const orderEnterScene = orderScene.orderEnterScene(bot, I18n);
+const orderContactNameScene = orderScene.orderContactNameScene(bot, I18n);
+const orderContactPhoneScene = orderScene.orderContactPhoneScene(bot, I18n)
+const orderEndScene = orderScene.orderEndScene(bot, I18n);
+const orderContactLocationScene = orderScene.orderContactLocationScene(bot, I18n);
 const printingScene = require('./src/scenes/printing');
 const printingSceneEnter = printingScene.printingSceneEnter(bot, I18n);
 const printingSizeScene = printingScene.printingSizeScene(bot, I18n);
@@ -55,12 +60,12 @@ const printingSceneClothe = printingScene.printingSceneClothe(bot, I18n);
 const printingStyleScene = printingScene.printingStyleScene(bot, I18n);
 
 
-const stgs = [printingContactLocationScene, catalogueSizeScene, printingStyleScene, catalogueContactLocationScene,
+const stgs = [cartScene, catalogueAddToCartScene, printingContactLocationScene, catalogueSizeScene, printingStyleScene,
     catalogueSceneMultipleQuantity, printingSceneMultipleQuantity, printingSceneClothe,
     printingSizeScene, printingContactNameScene, printingContactPhoneScene, printingEndScene,
-    printingSceneEnter, printingSceneQuantity, catalogueEnterScene, catalogueMaterialScene,
-    catalogueQuantityScene, catalogueVariationScene, languageScene, mainScene, aboutScene,
-    catalogueContactNameScene, catalogueContactPhoneScene, askQuestionScene, catalogueEndScene];
+    printingSceneEnter, printingSceneQuantity, catalogueEnterScene,
+    catalogueQuantityScene, catalogueVariationScene, languageScene, mainScene, aboutScene, askQuestionScene, orderEnterScene,
+    orderContactNameScene, orderContactPhoneScene, orderEndScene, orderContactLocationScene];
 
 // Stage
 const stage = new Stage();
@@ -90,10 +95,38 @@ stgs.map(stg => {
 bot.use(stage.middleware());
 
 
-bot.start(ctx => {
+bot.start( async ctx => {
     ctx.session.mesage_filter = [];
-    return ctx.scene.enter('language');
+
+    const user = await User.findOne({where: {user_id: ctx.from.id}});
+
+
+    if(!user){
+        ctx.session.catalogueCart = [];
+        ctx.session.cart = {};
+        ctx.session.cart.totalPrice = 0;
+
+        User.create({
+            user_id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            lastName: ctx.message.from.last_name,
+            firstName: ctx.message.from.first_name,
+        })
+
+        return ctx.scene.enter('language');
+    } else if (!user.chosenLanguage) {
+        ctx.session.catalogueCart = [];
+        ctx.session.cart = {};
+        ctx.session.cart.totalPrice = 0;
+        return ctx.scene.enter('language');
+    }
+
+    return ctx.scene.enter('mainMenu', {
+        start: ctx.i18n.t('mainMenu')
+    })
+
 })
+
 
 bot.use(async ctx => {
     //  -1001323833574 orders
@@ -103,8 +136,7 @@ bot.use(async ctx => {
 
     if (ctx.update.message) {
         if (ctx.update.message.chat.id === -1001450276522 && ctx.update.message.reply_to_message) {
-            // console.log(ctx.update.message.text);
-            // console.log(ctx.update.message.reply_to_message);
+
             const qstn = await Question.findOne({
                 where:
                     {message_id: ctx.update.message.reply_to_message.message_id}
@@ -115,7 +147,7 @@ bot.use(async ctx => {
                 qstn.answer = ctx.update.message.text;
                 qstn.answered = ctx.update.message.from.username;
                 qstn.message_status = `${ctx.i18n.t('askQuestionDone')}: ${qstn.answered}`;
-                console.log(qstn.message_status);
+
                 await qstn.save();
 
                 const sendMarkup = `

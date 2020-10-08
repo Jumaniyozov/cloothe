@@ -2,6 +2,8 @@ const Scene = require('telegraf/scenes/base');
 const {Telegraf} = require('telegraf');
 const {Extra} = Telegraf;
 
+const User = require('../models/User');
+
 module.exports = () => {
     const languageScene = new Scene('language');
 
@@ -22,8 +24,11 @@ module.exports = () => {
     });
 
     languageScene.on('text', async ctx => {
-        console.log('fff');
+
+
         if (ctx.message.text === `🇷🇺 Русский язык` || ctx.message.text === `🇺🇿 O'zbek tili`) {
+
+            ctx.session.chosenLanguage = 'ru';
 
             if (ctx.message.text === `🇷🇺 Русский язык`) {
                 ctx.session.chosenLanguage = 'ru'
@@ -33,6 +38,12 @@ module.exports = () => {
                 ctx.session.chosenLanguage = 'uz'
                 ctx.i18n.locale(`uz`)
             }
+
+            const user = await User.findOne({where: {user_id: ctx.from.id}})
+
+            user.chosenLanguage = ctx.session.chosenLanguage;
+
+            user.save();
 
             if (ctx.session.languageChosen) {
                 ctx.session.languageChosen = false;

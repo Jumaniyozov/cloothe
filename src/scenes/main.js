@@ -18,6 +18,7 @@ module.exports = (bot, I18n) => {
         const unauthMsg = [
             [`${ctx.i18n.t('menuCatalog')}`, `${ctx.i18n.t('menuPrint')}`],
             [`${ctx.i18n.t('menuQA')}`, `${ctx.i18n.t('menuAsk')}`],
+            [`${ctx.i18n.t('menuCatalogueCart')}`],
             [`${ctx.i18n.t('menuAbout')}`],
             [ `${ctx.i18n.t('menuLanguage')}`],
         ]
@@ -50,6 +51,10 @@ module.exports = (bot, I18n) => {
 
     mainScene.hears(I18n.match('menuCatalog'), ctx => {
         ctx.scene.enter('catalogue')
+    })
+
+    mainScene.hears(I18n.match('menuCatalogueCart'), ctx => {
+        ctx.scene.enter('cart')
     })
 
 
