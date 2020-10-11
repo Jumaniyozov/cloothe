@@ -17,10 +17,10 @@ const i18n = new I18n({
 })
 
 const session = new MySQLSession({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_BASE
+    host: process.env.DBHOST,
+    user: process.env.DBUSER,
+    password: process.env.DBPASS,
+    database: process.env.DBNAME
 })
 
 
@@ -37,7 +37,6 @@ const askQuestionScene = require('./src/scenes/askQuestion')(bot, I18n);
 const cartScene = require('./src/scenes/cart')(bot, I18n);
 const catalogueEnterScene = catalogueScene.catalogueEnterScene(bot, I18n);
 const catalogueVariationScene = catalogueScene.catalogueVariationScene(bot, I18n);
-// const catalogueMaterialScene = catalogueScene.catalogueMaterialScene(bot, I18n);
 const catalogueSizeScene = catalogueScene.catalogueSizeScene(bot, I18n);
 const catalogueQuantityScene = catalogueScene.catalogueQuantityScene(bot, I18n);
 const catalogueSceneMultipleQuantity = catalogueScene.catalogueSceneMultipleQuantity(bot, I18n);
@@ -49,7 +48,9 @@ const orderEndScene = orderScene.orderEndScene(bot, I18n);
 const orderContactLocationScene = orderScene.orderContactLocationScene(bot, I18n);
 const printingScene = require('./src/scenes/printing');
 const printingSceneEnter = printingScene.printingSceneEnter(bot, I18n);
+const printingSceneClotheColor = printingScene.printingSceneClotheColor(bot, I18n);
 const printingSizeScene = printingScene.printingSizeScene(bot, I18n);
+const printingSceneClotheShape = printingScene.printingSceneClotheShape(bot, I18n);
 const printingSceneQuantity = printingScene.printingSceneQuantity(bot, I18n);
 const printingSceneMultipleQuantity = printingScene.printingSceneMultipleQuantity(bot, I18n);
 const printingContactNameScene = printingScene.printingContactNameScene(bot, I18n);
@@ -63,8 +64,8 @@ const printingStyleScene = printingScene.printingStyleScene(bot, I18n);
 const stgs = [cartScene, catalogueAddToCartScene, printingContactLocationScene, catalogueSizeScene, printingStyleScene,
     catalogueSceneMultipleQuantity, printingSceneMultipleQuantity, printingSceneClothe,
     printingSizeScene, printingContactNameScene, printingContactPhoneScene, printingEndScene,
-    printingSceneEnter, printingSceneQuantity, catalogueEnterScene,
-    catalogueQuantityScene, catalogueVariationScene, languageScene, mainScene, aboutScene, askQuestionScene, orderEnterScene,
+    printingSceneEnter, printingSceneQuantity, catalogueEnterScene, printingSceneClotheShape,
+    catalogueQuantityScene, catalogueVariationScene, languageScene, printingSceneClotheColor, mainScene, aboutScene, askQuestionScene, orderEnterScene,
     orderContactNameScene, orderContactPhoneScene, orderEndScene, orderContactLocationScene];
 
 // Stage

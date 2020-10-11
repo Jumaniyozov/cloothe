@@ -9,6 +9,8 @@ const sharp = require('sharp');
 sharp.cache(false);
 
 const Catalogue = require('./../models/Catalogue');
+const PrintingColors = require('./../models/PrintingColors');
+const PrintingShape = require('./../models/PrintingShape');
 
 const PrintingDetails = require('../models/PrintingDetails');
 
@@ -39,13 +41,19 @@ module.exports.printingSceneClothe = (bot, I18n) => {
         const msg = ctx.reply(`${ctx.i18n.t('catalogClotheType')}`, Extra.markup(markup => {
             return markup.keyboard([
                 ...clotheMarkup,
-                [`◀️ Назад`]
+                [`${ctx.i18n.t('menuBack')}`]
             ]).resize();
         }))
         ctx.session.mesage_filter.push((await msg).message_id);
     });
 
     printingSceneClothe.hears(I18n.match('menuBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
+    })
+
+    printingSceneClothe.hears(I18n.match('menuMainBack'), ctx => {
         ctx.scene.enter('mainMenu', {
             start: ctx.i18n.t('mainMenu')
         })
@@ -63,7 +71,7 @@ module.exports.printingSceneClothe = (bot, I18n) => {
             })
 
             ctx.session.printingProps.printClothe = clotheID[0].ID;
-            ctx.scene.enter('printingStyle')
+            ctx.scene.enter('printingSceneClotheColor')
         }
     })
 
@@ -71,6 +79,74 @@ module.exports.printingSceneClothe = (bot, I18n) => {
     return printingSceneClothe
 
 }
+
+module.exports.printingSceneClotheColor = (bot, I18n) => {
+    const printingSceneClotheColor = new Scene('printingSceneClotheColor');
+
+    printingSceneClotheColor.enter(async (ctx) => {
+
+
+        const clothes = await PrintingColors.findAll();
+
+        ctx.session.printingProps.clothesDataColors = clothes.map(clothe => {
+            return clothe.dataValues;
+        })
+
+        const clotheMarkup = clothes.map(clothe => {
+            if (ctx.session.chosenLanguage === 'ru') {
+                return [clothe.dataValues.nameRu]
+            } else {
+                return [clothe.dataValues.nameUz]
+            }
+        })
+
+        ctx.session.clotheColorArray = clotheMarkup.map(clothe => clothe[0]);
+
+        const msg = ctx.reply(`${ctx.i18n.t('catalogClotheColor')}`, Extra.markup(markup => {
+            return markup.keyboard([
+                ...clotheMarkup,
+                [`${ctx.i18n.t('menuBack')}`],
+                [`${ctx.i18n.t('menuMainBack')}`],
+            ]).resize();
+        }))
+        ctx.session.mesage_filter.push((await msg).message_id);
+    });
+
+    printingSceneClotheColor.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
+    })
+
+    printingSceneClotheColor.hears(I18n.match('menuBack'), ctx => {
+        ctx.scene.enter('printing');
+    })
+
+    printingSceneClotheColor.on('text', ctx => {
+        if (ctx.session.clotheColorArray.includes(ctx.message.text)) {
+
+            const color = ctx.session.printingProps.clothesDataColors.filter(clothe => {
+                if (ctx.session.chosenLanguage === 'ru') {
+                    return clothe.nameRu === ctx.message.text
+                } else {
+                    return clothe.nameUz === ctx.message.text
+                }
+            })
+
+            // console.log(color);
+
+            ctx.session.printingProps.printClotheColor = [color[0].photoFront, color[0].photoBack];
+
+            ctx.scene.enter('printingStyle')
+        }
+    })
+
+
+    return printingSceneClotheColor
+
+}
+
+
 
 module.exports.printingStyleScene = (bot, I18n) => {
     const printingStyleScene = new Scene('printingStyle');
@@ -80,14 +156,14 @@ module.exports.printingStyleScene = (bot, I18n) => {
 
         const styles = await PrintingDetails.findAll({where: {clothe: ctx.session.printingProps.printClothe}});
 
-        ctx.session.printingProps.printStylesArray = [];
+        ctx.session.printingProps.printArray = [];
 
         const styleMarkup = styles.map(style => {
             if (ctx.session.chosenLanguage === 'ru') {
-                ctx.session.printingProps.printStylesArray.push(style.dataValues.nameRu);
+                ctx.session.printingProps.printArray.push(style.dataValues.nameRu);
                 return [style.dataValues.nameRu]
             } else {
-                ctx.session.printingProps.printStylesArray.push(style.dataValues.nameUz);
+                ctx.session.printingProps.printArray.push(style.dataValues.nameUz);
                 return [style.dataValues.nameUz]
             }
         })
@@ -96,26 +172,99 @@ module.exports.printingStyleScene = (bot, I18n) => {
         const msg = ctx.reply(`${ctx.i18n.t('printingStyle')}`, Extra.markup(markup => {
             return markup.keyboard([
                 ...styleMarkup
-                , [`${ctx.i18n.t('menuBack')}`]
+                , [`${ctx.i18n.t('menuBack')}`],
+                [`${ctx.i18n.t('menuMainBack')}`]
             ]).resize();
         }))
         ctx.session.mesage_filter.push((await msg).message_id);
     });
 
     printingStyleScene.hears(I18n.match('menuBack'), ctx => {
-        ctx.scene.enter('printing')
+        ctx.scene.enter('printingSceneClotheColor')
+    })
+
+    printingStyleScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
 
     printingStyleScene.on('text', ctx => {
-        if (ctx.session.printingProps.printStylesArray.includes(ctx.message.text)) {
+        if (ctx.session.printingProps.printArray.includes(ctx.message.text)) {
             ctx.session.printingCoordinatesName = ctx.message.text;
-            ctx.scene.enter('printingEnter')
+            ctx.scene.enter('printingSceneClotheShape')
         }
     })
 
 
     return printingStyleScene;
+}
+
+
+module.exports.printingSceneClotheShape = (bot, I18n) => {
+    const printingSceneClotheShape = new Scene('printingSceneClotheShape');
+
+    printingSceneClotheShape.enter(async (ctx) => {
+
+
+        const clothes = await PrintingShape.findAll();
+
+        ctx.session.printingProps.clothesDataShapes = clothes.map(clothe => {
+            return clothe.dataValues;
+        })
+
+        const clotheMarkup = clothes.map(clothe => {
+            if (ctx.session.chosenLanguage === 'ru') {
+                return [clothe.dataValues.nameRu]
+            } else {
+                return [clothe.dataValues.nameUz]
+            }
+        })
+
+        ctx.session.clotheShapeArray = clotheMarkup.map(clothe => clothe[0]);
+
+        const msg = ctx.reply(`${ctx.i18n.t('catalogClotheShape')}`, Extra.markup(markup => {
+            return markup.keyboard([
+                ...clotheMarkup,
+                [`${ctx.i18n.t('menuBack')}`],
+                [`${ctx.i18n.t('menuMainBack')}`],
+            ]).resize();
+        }))
+        ctx.session.mesage_filter.push((await msg).message_id);
+    });
+
+    printingSceneClotheShape.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
+    })
+
+    printingSceneClotheShape.hears(I18n.match('menuBack'), ctx => {
+        ctx.scene.enter('printingStyle');
+    })
+
+    printingSceneClotheShape.on('text', ctx => {
+        if (ctx.session.clotheShapeArray.includes(ctx.message.text)) {
+
+            const color = ctx.session.printingProps.clothesDataShapes.filter(clothe => {
+                if (ctx.session.chosenLanguage === 'ru') {
+                    return clothe.nameRu === ctx.message.text
+                } else {
+                    return clothe.nameUz === ctx.message.text
+                }
+            })
+
+            console.log(color);
+
+            ctx.session.printingProps.printClotheShape = color[0].type;
+
+            ctx.scene.enter('printingEnter')
+        }
+    })
+
+
+    return printingSceneClotheShape
 
 }
 
@@ -125,69 +274,36 @@ module.exports.printingSceneEnter = (bot, I18n) => {
     printingScene.enter(async (ctx) => {
         const msg = ctx.reply(`${ctx.i18n.t('printingPhotoSend')}`, Extra.markup(markup => {
             return markup.keyboard([
-                [`${ctx.i18n.t('menuBack')}`]
+                [`${ctx.i18n.t('menuBack')}`],
+                [`${ctx.i18n.t('menuMainBack')}`]
             ]).resize();
         }))
         ctx.session.mesage_filter.push((await msg).message_id);
     });
 
     printingScene.hears(I18n.match('menuBack'), ctx => {
-        ctx.scene.enter('printingStyle');
+        ctx.scene.enter('printingSceneClotheShape');
+    })
+
+    printingScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
+    })
+
+
+    printingScene.on('document', async ctx => {
+        console.log(ctx.message);
+        const type = ctx.message.document.mime_type.split('/')[1];
+        if(type === 'png'){
+            cloothe(ctx, ctx.message.document.file_id);
+        } else {
+            ctx.reply(`${ctx.i18n.t('catalogClothePng')}`);
+        }
     })
 
     printingScene.on('photo', async ctx => {
-
-        ctx.reply(`${ctx.i18n.t('printingPhotoUploading')}`);
-
-        let printingClothe;
-        if (ctx.session.chosenLanguage === 'ru') {
-            printingClothe = await PrintingDetails.findAll({where: {nameRu: ctx.session.printingCoordinatesName}})
-        } else {
-            printingClothe = await PrintingDetails.findAll({where: {nameUz: ctx.session.printingCoordinatesName}})
-        }
-        const photoName = printingClothe[0].photoName;
-
-        ctx.session.printingProps.fi = path.resolve(__dirname, '../images/', `${ctx.from.id}_inputPhoto.jpg`);
-        ctx.session.printingProps.fo = path.resolve(__dirname, '../images/', `${ctx.from.id}_outputPhoto.jpg`);
-        ctx.session.printingProps.outputPhoto = path.resolve(__dirname, '../images/', `${ctx.from.id}_finale.jpg`);
-        const inputPhoto = path.resolve(__dirname, '../images/settings', `${photoName}`);
-
-        const ddd = await sharp(inputPhoto)
-        const sizes = await ddd.metadata();
-
-
-        const coordinatey = Math.floor(Number(sizes.width / printingClothe[0].coordinatey));
-        const coordinatex = Math.floor(Number(sizes.height / printingClothe[0].coordinatex));
-
-        const resizeWidth = Math.floor(sizes.width / printingClothe[0].resizeWidth);
-        const resizeHeight = Math.floor(sizes.height / printingClothe[0].resizeHeight);
-
-
-
-
-
-
-        await uploadPrice(ctx);
-
-        await sharp(ctx.session.printingProps.fi).resize(resizeWidth, resizeHeight, {fit: 'fill'}).toFile(ctx.session.printingProps.fo);
-
-
-        await sharp(inputPhoto).composite([{
-            input: ctx.session.printingProps.fo,
-            top: coordinatey,
-            left: coordinatex
-        }]).toFile(ctx.session.printingProps.outputPhoto)
-
-        await ctx.replyWithPhoto({
-            source: ctx.session.printingProps.outputPhoto,
-            filename: `${ctx.from.id}_finale.jpg`
-        }, Extra.markup(markup => {
-            return markup.keyboard([
-                [`${ctx.i18n.t('printingOrder')}`],
-                [`${ctx.i18n.t('menuBack')}`]
-            ]).resize();
-        }))
-
+        cloothe(ctx);
     })
 
     printingScene.hears(I18n.match('printingOrder'), ctx => {
@@ -211,7 +327,7 @@ module.exports.printingSizeScene = (bot, I18n) => {
 
         ctx.session.printingProps.clotheSize = [];
         const msg = ctx.reply(`${ctx.i18n.t('catalogClotheSize')}`, Extra.markup(markup => {
-            return markup.keyboard([...ctx.session.printingProps.sizeMarkup, rMarkup]).resize();
+            return markup.keyboard([...ctx.session.printingProps.sizeMarkup, rMarkup, [`${ctx.i18n.t('menuMainBack')}`]]).resize();
         }))
 
         ctx.session.mesage_filter.push((await msg).message_id);
@@ -219,6 +335,12 @@ module.exports.printingSizeScene = (bot, I18n) => {
 
     printingSizeScene.hears(I18n.match('menuBack'), (ctx) => {
         ctx.scene.enter('printingEnter');
+    })
+
+    printingSizeScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
     printingSizeScene.on('text', async (ctx) => {
@@ -255,7 +377,7 @@ module.exports.printingSizeScene = (bot, I18n) => {
                 }
 
                 ctx.reply(`${ctx.i18n.t('catalogClotheSize')}`, Extra.markup(markup => {
-                    return markup.keyboard([...ctx.session.printingProps.sizeMarkup, rMarkup]).resize()
+                    return markup.keyboard([...ctx.session.printingProps.sizeMarkup, rMarkup, [`${ctx.i18n.t('menuMainBack')}`]]).resize()
                 }));
 
             } else {
@@ -276,7 +398,7 @@ module.exports.printingSizeScene = (bot, I18n) => {
                 }
 
                 ctx.reply(`${ctx.i18n.t('catalogClotheSize')}`, Extra.markup(markup => {
-                    return markup.keyboard([...ctx.session.printingProps.sizeMarkup, rMarkup]).resize()
+                    return markup.keyboard([...ctx.session.printingProps.sizeMarkup, rMarkup, [`${ctx.i18n.t('menuMainBack')}`]]).resize()
                 }));
             }
 
@@ -293,7 +415,7 @@ module.exports.printingSceneQuantity = (bot, I18n) => {
     printingSceneQuantity.enter(async (ctx) => {
         if (ctx.session.printingProps.clotheSize.length === 1) {
             const msg = ctx.reply(`${ctx.i18n.t('catalogClotheQuantity')}`, Extra.markup(markup => {
-                return markup.keyboard([['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['◀️ Назад']]).resize();
+                return markup.keyboard([['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], [`${ctx.i18n.t('menuBack')}`], [`${ctx.i18n.t('menuMainBack')}`]]).resize();
             }))
             ctx.session.mesage_filter.push((await msg).message_id);
         }
@@ -301,6 +423,12 @@ module.exports.printingSceneQuantity = (bot, I18n) => {
 
     printingSceneQuantity.hears(I18n.match('menuBack'), ctx => {
         ctx.scene.enter('printingSize')
+    })
+
+    printingSceneQuantity.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
     printingSceneQuantity.on('text', async ctx => {
@@ -344,6 +472,9 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
             return markup.inlineKeyboard([...ctx.session.printingProps.multiplePrintMarkup, [{
                 text: `${ctx.i18n.t('menuBack')}`,
                 callback_data: 'back'
+            }],  [{
+                text: `${ctx.i18n.t('menuMainBack')}`,
+                callback_data: 'menuMainBack'
             }]]);
         }))
 
@@ -360,7 +491,12 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
             ctx.scene.enter('printingContactName')
         }
 
+    })
 
+    printingSceneMultipleQuantity.action('menuMainBack', ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
 
@@ -393,13 +529,19 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
                             [{
                                 text: `${ctx.i18n.t('menuBack')}`,
                                 callback_data: 'back'
-                            }]]);
+                            }],  [{
+                            text: `${ctx.i18n.t('menuMainBack')}`,
+                            callback_data: 'menuMainBack'
+                        }]]);
                 }))
             } else {
                 ctx.session.printingProps.multiQtymsg = ctx.reply(`${ctx.i18n.t('catalogClotheMultipleQuantity')}`, Extra.markup(markup => {
                     return markup.inlineKeyboard([...ctx.session.printingProps.multiplePrintMarkup, [{
                         text: `${ctx.i18n.t('menuBack')}`,
                         callback_data: 'back'
+                    }],  [{
+                        text: `${ctx.i18n.t('menuMainBack')}`,
+                        callback_data: 'menuMainBack'
                     }]]);
                 }))
             }
@@ -425,13 +567,19 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
                             [{
                                 text: `${ctx.i18n.t('menuBack')}`,
                                 callback_data: 'back'
-                            }]]);
+                            }],  [{
+                            text: `${ctx.i18n.t('menuMainBack')}`,
+                            callback_data: 'menuMainBack'
+                        }]]);
                 }))
             } else {
                 ctx.session.printingProps.multiQtymsg = ctx.reply(`${ctx.i18n.t('catalogClotheMultipleQuantity')}`, Extra.markup(markup => {
                     return markup.inlineKeyboard([...ctx.session.printingProps.multiplePrintMarkup, [{
                         text: `${ctx.i18n.t('menuBack')}`,
                         callback_data: 'back'
+                    }], [{
+                        text: `${ctx.i18n.t('menuMainBack')}`,
+                        callback_data: 'menuMainBack'
                     }]]);
                 }))
             }
@@ -452,7 +600,7 @@ module.exports.printingContactNameScene = (bot, I18n) => {
         const rMarkup = [`${ctx.i18n.t('menuBack')}`];
 
         const msg = ctx.reply(`${ctx.i18n.t('catalogClotheContactName')}`, Extra.markup(markup => {
-            return markup.keyboard([rMarkup]).resize();
+            return markup.keyboard([rMarkup, [ctx.i18n.t('menuMainBack')]]).resize();
         }))
 
         ctx.session.mesage_filter.push((await msg).message_id);
@@ -463,6 +611,12 @@ module.exports.printingContactNameScene = (bot, I18n) => {
             return ctx.scene.enter('printingMultipleQuantity')
         }
         return ctx.scene.enter('printingQuantity');
+    })
+
+    printingContactNameScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
     printingContactNameScene.on('text', async (ctx) => {
@@ -480,7 +634,7 @@ module.exports.printingContactPhoneScene = (bot, I18n) => {
         const rMarkup = [`${ctx.i18n.t('menuBack')}`];
 
         const msg = ctx.reply(`${ctx.i18n.t('catalogClotheContactPhone')}`, Extra.markup(markup => {
-            return markup.keyboard([rMarkup]).resize();
+            return markup.keyboard([rMarkup, [ctx.i18n.t('menuMainBack')]]).resize();
         }))
 
         ctx.session.mesage_filter.push((await msg).message_id);
@@ -488,6 +642,12 @@ module.exports.printingContactPhoneScene = (bot, I18n) => {
 
     printingContactPhoneScene.hears(I18n.match('menuBack'), (ctx) => {
         ctx.scene.enter('printingContactName');
+    })
+
+    printingContactPhoneScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
     printingContactPhoneScene.on('text', async (ctx) => {
@@ -507,7 +667,7 @@ module.exports.printingContactLocationScene = (bot, I18n) => {
         const rMarkup = [`${ctx.i18n.t('menuBack')}`];
 
         const msg = ctx.reply(`${ctx.i18n.t('catalogClotheAskLocaction')}`, Extra.markup(markup => {
-            return markup.keyboard([[markup.locationRequestButton(`${ctx.i18n.t('catalogClotheSendLocation')}`)], rMarkup]).resize();
+            return markup.keyboard([[markup.locationRequestButton(`${ctx.i18n.t('catalogClotheSendLocation')}`)], rMarkup, [ctx.i18n.t('menuMainBack')]]).resize();
         }))
 
         ctx.session.mesage_filter.push((await msg).message_id);
@@ -515,6 +675,12 @@ module.exports.printingContactLocationScene = (bot, I18n) => {
 
     printingContactLocationScene.hears('◀️ Назад', (ctx) => {
         ctx.scene.enter('printingContactPhone');
+    })
+
+    printingContactLocationScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
     printingContactLocationScene.on('location', async (ctx) => {
@@ -580,7 +746,7 @@ ${writtenAdress ? writtenAdress : '\n'}`
         })
 
         const msg_2 = ctx.reply(`${ctx.i18n.t('catalogClotheConfirm')}`, Extra.markup(markup => {
-            return markup.keyboard([[`${ctx.i18n.t('catalogClotheConfirmed')}`], rMarkup]).resize();
+            return markup.keyboard([[`${ctx.i18n.t('catalogClotheConfirmed')}`], rMarkup, [ctx.i18n.t('menuMainBack')]]).resize();
         }))
 
         ctx.session.mesage_filter.push((await msg_1).message_id);
@@ -591,6 +757,12 @@ ${writtenAdress ? writtenAdress : '\n'}`
 
     printingEndScene.hears(I18n.match('menuBack'), (ctx) => {
         ctx.scene.enter('printingLocation');
+    })
+
+    printingEndScene.hears(I18n.match('menuMainBack'), ctx => {
+        ctx.scene.enter('mainMenu', {
+            start: ctx.i18n.t('mainMenu')
+        })
     })
 
     printingEndScene.on('text', async (ctx) => {
@@ -609,7 +781,7 @@ ${writtenAdress ? writtenAdress : '\n'}`
             }
             await bot.telegram.sendPhoto('-1001323833574', {
                 source: pathe,
-                filename: `${ctx.from.id}_inputPhoto.jpg`
+                filename: `${ctx.from.id}_inputPhoto.png`
             });
 
             fs.unlink(ctx.session.printingProps.fi, (err) => err ? console.log(err) : null);
@@ -626,24 +798,29 @@ ${writtenAdress ? writtenAdress : '\n'}`
 }
 
 
-async function uploadPrice(ctx) {
+async function uploadPhoto(ctx, file) {
 
     let fileUrl;
-
-    if (ctx.message.photo.length === 3) {
-        fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[2].file_id}`
-    } else if (ctx.message.photo.length === 2) {
-        fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[1].file_id}`
-    } else {
-        fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[0].file_id}`
+    if (file){
+        fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${file}`
+    }else {
+        if (ctx.message.photo.length === 3) {
+            fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[2].file_id}`
+        } else if (ctx.message.photo.length === 2) {
+            fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[1].file_id}`
+        } else {
+            fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[0].file_id}`
+        }
     }
+
+
 
     const res = await axios.get(fileUrl);
 
 
     const url = `https://api.telegram.org/file/bot${process.env.TGTOKEN}/${res.data.result.file_path}`
 
-    const pathe = path.resolve(__dirname, '../images', `${ctx.from.id}_inputPhoto.jpg`)
+    const pathe = path.resolve(__dirname, '../images', `${ctx.from.id}_inputPhoto.png`)
     const writer = await fs.createWriteStream(pathe)
 
     const response = await axios({
@@ -658,4 +835,83 @@ async function uploadPrice(ctx) {
         writer.on('finish', resolve)
         writer.on('error', reject)
     })
+}
+
+async function cloothe(ctx, file){
+
+    ctx.reply(`${ctx.i18n.t('printingPhotoUploading')}`);
+
+    let printingClothe;
+    if (ctx.session.chosenLanguage === 'ru') {
+        printingClothe = await PrintingDetails.findAll({where: {nameRu: ctx.session.printingCoordinatesName}})
+    } else {
+        printingClothe = await PrintingDetails.findAll({where: {nameUz: ctx.session.printingCoordinatesName}})
+    }
+    const photoName = printingClothe[0].photoName;
+
+
+    ctx.session.printingProps.fi = path.resolve(__dirname, '../images/', `${ctx.from.id}_inputPhoto.png`);
+
+
+    ctx.session.printingProps.fo = path.resolve(__dirname, '../images/', `${ctx.from.id}_outputPhoto.png`);
+    ctx.session.printingProps.outputPhoto = path.resolve(__dirname, '../images/', `${ctx.from.id}_finale.png`);
+    let inputPhoto;
+    if (photoName === 'face') {
+        inputPhoto = path.resolve(__dirname, '../images/settings', `${ctx.session.printingProps.printClotheColor[0]}`);
+    } else if (photoName === 'back') {
+        inputPhoto = path.resolve(__dirname, '../images/settings', `${ctx.session.printingProps.printClotheColor[1]}`);
+    }
+
+    const ddd = await sharp(inputPhoto)
+    const sizes = await ddd.metadata();
+
+    let resizeWidth = Math.floor(sizes.width / printingClothe[0].resizeWidth);
+    let resizeHeight = Math.floor(sizes.height / printingClothe[0].resizeHeight);
+
+    if(ctx.session.printingProps.printClotheShape === 'square'){
+        resizeHeight = Math.floor(sizes.width / printingClothe[0].resizeHeight);
+        resizeWidth = resizeHeight;
+    }
+
+    let coordinatex = Math.floor(
+        (printingClothe[0].correctionx ?
+            (printingClothe[0].correctionx * resizeWidth) : 0)
+        + (sizes.width / printingClothe[0].coordinatex) - (resizeWidth / 2)
+    );
+    let coordinatey = Math.floor(
+        (printingClothe[0].correctiony ? (
+            printingClothe[0].correctiony * resizeHeight) : 0)
+        + (sizes.height / printingClothe[0].coordinatey) - (resizeHeight / 2)
+    );
+    //
+    // let coordinatey = Math.floor(Number(sizes.width / printingClothe[0].coordinatey));
+    // let coordinatex = Math.floor(Number(sizes.height / printingClothe[0].coordinatex));
+
+    if(file) {
+        await uploadPhoto(ctx, file);
+    } else {
+        await uploadPhoto(ctx);
+    }
+
+
+    await sharp(ctx.session.printingProps.fi).resize(resizeWidth , resizeHeight, {fit: 'cover'}).toFile(ctx.session.printingProps.fo);
+
+    // await sharp(inputPhoto).overlayWith(ctx.session.printingProps.fo, coordinatey, coordinatex).toFile(ctx.session.printingProps.outputPhoto)
+
+    await sharp(inputPhoto).composite([{
+        input: ctx.session.printingProps.fo,
+        top: coordinatey,
+        left: coordinatex,
+    }]).toFormat('jpg').flatten({ background: { r: 255, g: 255, b: 255 }}).toFile(ctx.session.printingProps.outputPhoto)
+
+    await ctx.replyWithPhoto({
+        source: ctx.session.printingProps.outputPhoto,
+        filename: `${ctx.from.id}_finale.png`
+    }, Extra.markup(markup => {
+        return markup.keyboard([
+            [`${ctx.i18n.t('printingOrder')}`],
+            [`${ctx.i18n.t('menuBack')}`],
+            [`${ctx.i18n.t('menuMainBack')}`]
+        ]).resize();
+    }))
 }

@@ -30,5 +30,6 @@ const User = MySQL.define('user', {
     timestamps: false
 });
 
+// User.sync({ force: true });
 
 module.exports = User;

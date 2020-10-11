@@ -33,4 +33,6 @@ const Question = MySQL.define('question', {
     timestamps: false
 });
 
+// Question.sync({ force: true });
+
 module.exports = Question;

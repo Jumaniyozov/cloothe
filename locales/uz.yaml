@@ -38,7 +38,10 @@ askQuestionUserMessage: Salom, savolingizga javob
 catalogClotheType: Iltimos kiyim toifasini tanlang
 catalogClotheStyle: Iltimos kiyim turini tanlang
 catalogClotheMaterial: Iltimos kiyim mato turini tanlang
+catalogClotheColor: Iltimos kiyim rangini tanlang
+catalogClotheShape: Iltimos rasm shaklini tanlang
 catalogClotheSize: Iltimos kiyim o'lachamini tanlang
+catalogClothePng: Iltimos png formatli rasm yuboring
 catalogClotheContinue: Savatga qo'shish
 catalogClotheQuantity: Iltimos qiymatini tanlang
 catalogClotheMultipleQuantity: Iltimos o'lchamlarni qiymatini tanlang

@@ -15,19 +15,25 @@ const PrintingDetails = MySQL.define('printingdetail', {
         type: Sequelize.STRING,
     },
     coordinatex: {
-        type: Sequelize.STRING
+        type: Sequelize.FLOAT
     },
     coordinatey: {
-        type: Sequelize.STRING
+        type: Sequelize.FLOAT
     },
     photoName: {
         type: Sequelize.STRING
     },
     resizeWidth: {
-        type: Sequelize.STRING
+        type: Sequelize.FLOAT
     },
     resizeHeight: {
-        type: Sequelize.STRING
+        type: Sequelize.FLOAT
+    },
+    correctionx: {
+        type: Sequelize.FLOAT,
+    },
+    correctiony: {
+        type: Sequelize.FLOAT,
     },
     clothe: {
         type: Sequelize.INTEGER,
@@ -39,5 +45,6 @@ const PrintingDetails = MySQL.define('printingdetail', {
 
 PrintingDetails.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'ID'});
 
+// PrintingDetails.sync({ force: true });
 
 module.exports = PrintingDetails;

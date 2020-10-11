@@ -22,5 +22,8 @@ const ClotheSize = MySQL.define('size', {
 });
 
 
-ClotheSize.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'clotheType'});
+ClotheSize.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'ID'});
+
+// ClotheSize.sync({ force: true });
+
 module.exports = ClotheSize;

@@ -4,7 +4,6 @@ const {Extra} = Telegraf;
 
 const Catalogue = require('./../models/Catalogue');
 const ClotheVariation = require('./../models/ClotheVariation');
-const ClotheMaterial = require('./../models/ClotheMaterials');
 const ClotheSize = require('./../models/ClotheSizes');
 
 module.exports.catalogueEnterScene = (bot, I18n) => {

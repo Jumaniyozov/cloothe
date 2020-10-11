@@ -17,6 +17,6 @@ const HotQuestion = MySQL.define('hotquestion', {
     timestamps: false
 });
 
-
+// HotQuestion.sync({ force: true });
 
 module.exports = HotQuestion;

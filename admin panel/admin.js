@@ -9,7 +9,6 @@ const Catalogue = require('./../src/models/Catalogue');
 const Questions = require('./../src/models/Questions');
 const HotQuestions = require('./../src/models/HotQuestions');
 const ClotheVariation = require('./../src/models/ClotheVariation');
-const ClotheMaterials = require('./../src/models/ClotheMaterials');
 const ClotheSizes = require('./../src/models/ClotheSizes');
 const PrintingDetails = require('./../src/models/PrintingDetails');
 
@@ -22,8 +21,7 @@ const adminBro = new AdminBro({
     databases: [MySQL],
     resources: [
         Catalogue, Questions, HotQuestions,
-        ClotheVariation, ClotheMaterials,
-        ClotheSizes, PrintingDetails],
+        ClotheVariation, ClotheSizes, PrintingDetails],
     rootPath: '/admin',
 })
 

@@ -35,4 +35,6 @@ const ClotheVariation = MySQL.define('variation', {
 
 ClotheVariation.belongsTo(Catalogue, {foreignKey: 'clothe', targetKey: 'ID'});
 
+// ClotheVariation.sync({ force: true });
+
 module.exports = ClotheVariation;

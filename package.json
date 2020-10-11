@@ -18,7 +18,7 @@
     "express-formidable": "^1.2.0",
     "lodash": "^4.17.20",
     "moment": "^2.27.0",
-    "mysql2": "^2.1.0",
+    "mysql2": "^2.2.5",
     "needle": "^2.5.0",
     "sequelize": "^6.3.4",
     "sharp": "^0.26.1",

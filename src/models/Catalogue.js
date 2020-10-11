@@ -24,4 +24,6 @@ const Catalogue = MySQL.define('catalog', {
     timestamps: false
 });
 
+// Catalogue.sync({ force: true });
+
 module.exports = Catalogue;
