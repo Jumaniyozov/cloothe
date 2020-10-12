@@ -133,7 +133,6 @@ module.exports.printingSceneClotheColor = (bot, I18n) => {
                 }
             })
 
-            // console.log(color);
 
             ctx.session.printingProps.printClotheColor = [color[0].photoFront, color[0].photoBack];
 
@@ -145,7 +144,6 @@ module.exports.printingSceneClotheColor = (bot, I18n) => {
     return printingSceneClotheColor
 
 }
-
 
 
 module.exports.printingStyleScene = (bot, I18n) => {
@@ -255,8 +253,6 @@ module.exports.printingSceneClotheShape = (bot, I18n) => {
                 }
             })
 
-            console.log(color);
-
             ctx.session.printingProps.printClotheShape = color[0].type;
 
             ctx.scene.enter('printingEnter')
@@ -272,6 +268,7 @@ module.exports.printingSceneEnter = (bot, I18n) => {
     const printingScene = new Scene('printingEnter');
 
     printingScene.enter(async (ctx) => {
+        ctx.session.photoSendComplete = true;
         const msg = ctx.reply(`${ctx.i18n.t('printingPhotoSend')}`, Extra.markup(markup => {
             return markup.keyboard([
                 [`${ctx.i18n.t('menuBack')}`],
@@ -282,28 +279,62 @@ module.exports.printingSceneEnter = (bot, I18n) => {
     });
 
     printingScene.hears(I18n.match('menuBack'), ctx => {
-        ctx.scene.enter('printingSceneClotheShape');
+        if (ctx.session.photoSendingFinale) {
+            ctx.deleteMessage(ctx.session.photoSendingFinale);
+        }
+        if (ctx.session.photoSendComplete) {
+            return ctx.scene.enter('printingSceneClotheShape');
+        }
     })
 
     printingScene.hears(I18n.match('menuMainBack'), ctx => {
-        ctx.scene.enter('mainMenu', {
-            start: ctx.i18n.t('mainMenu')
-        })
+        if (ctx.session.photoSendingFinale) {
+            ctx.deleteMessage(ctx.session.photoSendingFinale);
+        }
+        if (ctx.session.photoSendComplete) {
+            return ctx.scene.enter('mainMenu', {
+                start: ctx.i18n.t('mainMenu')
+            })
+        }
     })
 
 
     printingScene.on('document', async ctx => {
-        console.log(ctx.message);
+        ctx.session.photoSendComplete = false;
         const type = ctx.message.document.mime_type.split('/')[1];
-        if(type === 'png'){
-            cloothe(ctx, ctx.message.document.file_id);
+        if (type === 'png') {
+            try {
+                await cloothe(ctx, ctx.message.document.file_id);
+                ctx.session.photoSendComplete = true;
+            } catch (e) {
+                console.err('Ощибка');
+                return ctx.scene.enter('mainMenu', {
+                    start: ctx.i18n.t('printingSendBackMenu')
+                })
+            }
         } else {
             ctx.reply(`${ctx.i18n.t('catalogClothePng')}`);
         }
     })
 
     printingScene.on('photo', async ctx => {
-        cloothe(ctx);
+        ctx.session.photoSendComplete = false;
+        const photo_id = ctx.message.photo[Math.max(ctx.message.photo.length) - 1].file_id;
+
+        if (ctx.message.photo) {
+            try {
+                await cloothe(ctx, photo_id);
+                ctx.session.photoSendComplete = true;
+            } catch (e) {
+                console.err('Ощибка');
+                return ctx.scene.enter('mainMenu', {
+                    start: ctx.i18n.t('printingSendBackMenu')
+                })
+            }
+        } else {
+            ctx.reply(`${ctx.i18n.t('catalogClothePng')}`);
+        }
+
     })
 
     printingScene.hears(I18n.match('printingOrder'), ctx => {
@@ -320,6 +351,7 @@ module.exports.printingSizeScene = (bot, I18n) => {
     const printingSizeScene = new Scene('printingSize');
 
     printingSizeScene.enter(async (ctx) => {
+
         const rMarkup = [`${ctx.i18n.t('menuBack')}`];
 
         ctx.session.printingProps.sizeArray = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
@@ -472,7 +504,7 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
             return markup.inlineKeyboard([...ctx.session.printingProps.multiplePrintMarkup, [{
                 text: `${ctx.i18n.t('menuBack')}`,
                 callback_data: 'back'
-            }],  [{
+            }], [{
                 text: `${ctx.i18n.t('menuMainBack')}`,
                 callback_data: 'menuMainBack'
             }]]);
@@ -529,7 +561,7 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
                             [{
                                 text: `${ctx.i18n.t('menuBack')}`,
                                 callback_data: 'back'
-                            }],  [{
+                            }], [{
                             text: `${ctx.i18n.t('menuMainBack')}`,
                             callback_data: 'menuMainBack'
                         }]]);
@@ -539,7 +571,7 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
                     return markup.inlineKeyboard([...ctx.session.printingProps.multiplePrintMarkup, [{
                         text: `${ctx.i18n.t('menuBack')}`,
                         callback_data: 'back'
-                    }],  [{
+                    }], [{
                         text: `${ctx.i18n.t('menuMainBack')}`,
                         callback_data: 'menuMainBack'
                     }]]);
@@ -567,7 +599,7 @@ module.exports.printingSceneMultipleQuantity = (bot, I18n) => {
                             [{
                                 text: `${ctx.i18n.t('menuBack')}`,
                                 callback_data: 'back'
-                            }],  [{
+                            }], [{
                             text: `${ctx.i18n.t('menuMainBack')}`,
                             callback_data: 'menuMainBack'
                         }]]);
@@ -597,6 +629,9 @@ module.exports.printingContactNameScene = (bot, I18n) => {
     const printingContactNameScene = new Scene('printingContactName');
 
     printingContactNameScene.enter(async (ctx) => {
+        if (ctx.session.printingProps.multiQtymsg) {
+            ctx.deleteMessage(await (ctx.session.printingProps.multiQtymsg).message_id);
+        }
         const rMarkup = [`${ctx.i18n.t('menuBack')}`];
 
         const msg = ctx.reply(`${ctx.i18n.t('catalogClotheContactName')}`, Extra.markup(markup => {
@@ -715,15 +750,20 @@ module.exports.printingEndScene = (bot, I18n) => {
 <b>${ctx.i18n.t('catalogClothConfirmClotheQuantity')}:</b> ${ctx.session.printingProps.printClotheQuantity}`
         let multiQuantityMsg;
 
+        let totalPrice = 0;
+
         if (Object.keys(ctx.session.printingProps.multipleSizes).length > 0) {
 
             let markupText = '';
             for (const [key, value] of Object.entries(ctx.session.printingProps.multipleSizes)) {
+                totalPrice = (totalPrice) + (ctx.session.printingProps.printClothePrice * value)
                 markupText += `\n<i>${ctx.i18n.t('catalogClothConfirmClotheSSize')}</i>: ${key}, <i>${ctx.i18n.t('catalogClothConfirmClotheSQty')}</i>: ${value}`;
             }
 
             multiQuantityMsg = `
 <b>${ctx.i18n.t('catalogClothConfirmClotheMQty')}:</b> ${markupText}`
+        } else {
+            totalPrice = printClotheQuantity * ctx.session.printingProps.printClothePrice;
         }
 
         let writtenAdress;
@@ -736,20 +776,28 @@ module.exports.printingEndScene = (bot, I18n) => {
 ${multiQuantityMsg ? multiQuantityMsg : singleQuantityMsg}
 <b>${ctx.i18n.t('catalogClothConfirmClotheContact')}:</b> ${ctx.session.printingProps.printingContactName}
 <b>${ctx.i18n.t('catalogClothConfirmClotheNumber')}:</b> ${ctx.session.printingProps.printingContactPhone}
-${writtenAdress ? writtenAdress : '\n'}`
+${writtenAdress ? writtenAdress : '\n'}
+<b>${ctx.i18n.t('cartTotalPrice')}</b>: ${totalPrice}`
 
-        const msg_1 = ctx.replyWithPhoto({
-            source: ctx.session.printingProps.outputPhoto,
-            filename: `${ctx.from.id}_finale.jpg`
-        }, {
-            caption: ctx.session.printingProps.endMarkup, parse_mode: "HTML"
-        })
+
+        try {
+            ctx.replyWithPhoto(`${ctx.session.printingFinalePhoto}`, {
+                caption: ctx.session.printingProps.endMarkup, parse_mode: "HTML"
+            })
+        } catch (e) {
+            ctx.replyWithPhoto({
+                source: path.resolve(__dirname, '../images', `${ctx.from.id}_finale.jpg`),
+                filename: `${ctx.from.id}_finale.jpg`
+            }, {
+                caption: ctx.session.printingProps.endMarkup, parse_mode: "HTML"
+            })
+        }
 
         const msg_2 = ctx.reply(`${ctx.i18n.t('catalogClotheConfirm')}`, Extra.markup(markup => {
             return markup.keyboard([[`${ctx.i18n.t('catalogClotheConfirmed')}`], rMarkup, [ctx.i18n.t('menuMainBack')]]).resize();
         }))
 
-        ctx.session.mesage_filter.push((await msg_1).message_id);
+
         ctx.session.mesage_filter.push((await msg_2).message_id);
 
 
@@ -768,18 +816,27 @@ ${writtenAdress ? writtenAdress : '\n'}`
     printingEndScene.on('text', async (ctx) => {
         if (ctx.message.text === `${ctx.i18n.t('catalogClotheConfirmed')}`) {
 
-            const pathe = path.resolve(__dirname, '../images', `${ctx.from.id}_inputPhoto.jpg`);
+            const pathe = path.resolve(__dirname, '../images', `${ctx.from.id}_inputPhoto.png`);
 
-            await bot.telegram.sendPhoto('-1001323833574', {
-                source: ctx.session.printingProps.outputPhoto,
-                filename: `${ctx.from.id}_finale.jpg`
-            }, {parse_mode: "HTML", caption: ctx.session.printingProps.endMarkup})
+            try {
+                await bot.telegram.sendPhoto('-1001323833574', `${ctx.session.printingFinalePhoto}`, {
+                    parse_mode: "HTML",
+                    caption: ctx.session.printingProps.endMarkup
+                })
+
+            } catch (e) {
+                await bot.telegram.sendPhoto('-1001323833574', {
+                    source: path.resolve(__dirname, '../images', `${ctx.from.id}_finale.jpg`),
+                    filename: `${ctx.from.id}_finale.jpg`
+                }, {parse_mode: "HTML", caption: ctx.session.printingProps.endMarkup})
+            }
+
             if (ctx.session.printingProps.printingContactAdressLatLon) {
                 await bot.telegram.sendLocation('-1001323833574',
                     ctx.session.printingProps.printingContactAdressLatLon.latitude,
                     ctx.session.printingProps.printingContactAdressLatLon.longitude);
             }
-            await bot.telegram.sendPhoto('-1001323833574', {
+            await bot.telegram.sendDocument('-1001323833574', {
                 source: pathe,
                 filename: `${ctx.from.id}_inputPhoto.png`
             });
@@ -801,9 +858,10 @@ ${writtenAdress ? writtenAdress : '\n'}`
 async function uploadPhoto(ctx, file) {
 
     let fileUrl;
-    if (file){
+    if (file) {
         fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${file}`
-    }else {
+    } else {
+
         if (ctx.message.photo.length === 3) {
             fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[2].file_id}`
         } else if (ctx.message.photo.length === 2) {
@@ -812,7 +870,6 @@ async function uploadPhoto(ctx, file) {
             fileUrl = `https://api.telegram.org/bot${process.env.TGTOKEN}/getFile?file_id=${ctx.message.photo[0].file_id}`
         }
     }
-
 
 
     const res = await axios.get(fileUrl);
@@ -837,9 +894,11 @@ async function uploadPhoto(ctx, file) {
     })
 }
 
-async function cloothe(ctx, file){
+async function cloothe(ctx, file) {
 
-    ctx.reply(`${ctx.i18n.t('printingPhotoUploading')}`);
+    ctx.reply(`${ctx.i18n.t('printingPhotoUploading')}`, Extra.markup(markup => {
+        return markup.removeKeyboard(true);
+    }));
 
     let printingClothe;
     if (ctx.session.chosenLanguage === 'ru') {
@@ -849,6 +908,7 @@ async function cloothe(ctx, file){
     }
     const photoName = printingClothe[0].photoName;
 
+    ctx.session.printingProps.printClothePrice = printingClothe[0].price;
 
     ctx.session.printingProps.fi = path.resolve(__dirname, '../images/', `${ctx.from.id}_inputPhoto.png`);
 
@@ -868,7 +928,7 @@ async function cloothe(ctx, file){
     let resizeWidth = Math.floor(sizes.width / printingClothe[0].resizeWidth);
     let resizeHeight = Math.floor(sizes.height / printingClothe[0].resizeHeight);
 
-    if(ctx.session.printingProps.printClotheShape === 'square'){
+    if (ctx.session.printingProps.printClotheShape === 'square') {
         resizeHeight = Math.floor(sizes.width / printingClothe[0].resizeHeight);
         resizeWidth = resizeHeight;
     }
@@ -887,14 +947,11 @@ async function cloothe(ctx, file){
     // let coordinatey = Math.floor(Number(sizes.width / printingClothe[0].coordinatey));
     // let coordinatex = Math.floor(Number(sizes.height / printingClothe[0].coordinatex));
 
-    if(file) {
-        await uploadPhoto(ctx, file);
-    } else {
-        await uploadPhoto(ctx);
-    }
+
+    await uploadPhoto(ctx, file);
 
 
-    await sharp(ctx.session.printingProps.fi).resize(resizeWidth , resizeHeight, {fit: 'cover'}).toFile(ctx.session.printingProps.fo);
+    await sharp(ctx.session.printingProps.fi).resize(resizeWidth, resizeHeight, {fit: 'cover'}).toFile(ctx.session.printingProps.fo);
 
     // await sharp(inputPhoto).overlayWith(ctx.session.printingProps.fo, coordinatey, coordinatex).toFile(ctx.session.printingProps.outputPhoto)
 
@@ -902,16 +959,29 @@ async function cloothe(ctx, file){
         input: ctx.session.printingProps.fo,
         top: coordinatey,
         left: coordinatex,
-    }]).toFormat('jpg').flatten({ background: { r: 255, g: 255, b: 255 }}).toFile(ctx.session.printingProps.outputPhoto)
+    }]).toFormat('jpg').flatten({background: {r: 255, g: 255, b: 255}}).toFile(ctx.session.printingProps.outputPhoto)
 
-    await ctx.replyWithPhoto({
+    const finalePhoto = await ctx.replyWithPhoto({
         source: ctx.session.printingProps.outputPhoto,
-        filename: `${ctx.from.id}_finale.png`
-    }, Extra.markup(markup => {
+        filename: `${ctx.from.id}_finale.png`,
+    }, Extra.caption(`${ctx.i18n.t('cartPrice')}: ${printingClothe[0].price}`).markup(markup => {
         return markup.keyboard([
             [`${ctx.i18n.t('printingOrder')}`],
             [`${ctx.i18n.t('menuBack')}`],
             [`${ctx.i18n.t('menuMainBack')}`]
         ]).resize();
     }))
+
+    ctx.session.photoSendingFinale = await finalePhoto.message_id;
+
+    if (finalePhoto.photo.length === 4) {
+        ctx.session.printingFinalePhoto = finalePhoto.photo[3].file_id;
+    } else if (finalePhoto.photo.length === 3) {
+        ctx.session.printingFinalePhoto = finalePhoto.photo[2].file_id;
+    } else if (finalePhoto.photo.length === 2) {
+        ctx.session.printingFinalePhoto = finalePhoto.photo[1].file_id;
+    } else if (finalePhoto.photo.length === 1) {
+        ctx.session.printingFinalePhoto = finalePhoto.photo[0].file_id;
+    }
+
 }

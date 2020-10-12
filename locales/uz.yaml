@@ -67,10 +67,12 @@ catalogClothConfirmClotheMat:  Mato turi
 catalogClothConfirmClotheContact:  Mijoz ismi
 catalogClothConfirmClotheNumber:  Mijoz raqami
 
-printingStyle: Iltimos kiyim bosma turini tanlang
-printingPhotoSend: Iltimos suratni rasm shaklida yuboring
+printingStyle: Iltimos print bosish joyini tanlang
+printingPhotoSend: Iltimos suratni suratni yoki shaffof rasmni fayl shaklida '.png' formatda yuboring
 printingPhotoUploading: Iltimos suratingiz ishlanyapti kuting
 printingOrder: Buyurtma berish
+printingSendBackMenu: Rasmni ishlash jarayonida xato yuz berdi iltimos qaytadan takrorlab ko'ring
+
 
 requestCompleteMsg: Buyurtmangiz qabul qilindi. Yaqin orada mutaxassislarimiz siz bilan bog'lanishadi.
 

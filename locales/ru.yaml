@@ -43,7 +43,7 @@ catalogClotheStyle: Пожалуйста  выберите стиль одежд
 catalogClotheMaterial: Пожалуйста  выберите материал одежды
 catalogClotheColor: Пожалуйста  выберите цвет одежды
 catalogClotheShape: Пожалуйста  выберите форму картинки
-catalogClothePng: Пожалуйста  отправьт фото с форматом png
+catalogClothePng: Пожалуйста  отправьте фото с форматом png
 catalogClotheSize: Пожалуйста  выберите размер одежды
 catalogClotheContinue: Добавить в корзину
 catalogClotheQuantity: Пожалуйста  выберите количество
@@ -70,10 +70,12 @@ catalogClothConfirmClotheMat:  Тип материала
 catalogClothConfirmClotheContact:  Имя контакта
 catalogClothConfirmClotheNumber:  Номер контакта
 
-printingStyle:  Пожалуйста выберите стиль печати одежды
-printingPhotoSend: Пожалуйста отправтье картинку как фото
+printingStyle:  Пожалуйста выберите область печати принта
+printingPhotoSend: Пожалуйста отправтье картинку или прозрачную фотографию как файл с форматом '.png'
 printingPhotoUploading: Пожалуйста подождите ваше фото обрабатывается
 printingOrder: Заказать
+printingSendBackMenu: При обработке фото произошла ощибка пожалуйста попробуйте заново
+
 
 requestCompleteMsg: Ваш заказ успешно отправлен. В ближайшее время с вами свяжутся наши специалисты
 

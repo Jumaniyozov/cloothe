@@ -8,10 +8,14 @@ module.exports = (bot, I18n) => {
 
     cartScene.enter(async ctx => {
 
+
+
         if (ctx.session.catalogueCart.length === 0) {
             return ctx.scene.enter('mainMenu', {
                 start: `${ctx.i18n.t('cartEmpty')}`
             })
+        } else if (typeof ctx.session.catalogueCart === 'undefined') {
+            ctx.session.catalogueCart = [];
         }
 
         // ctx.session.mesage_filter.forEach(msg => {

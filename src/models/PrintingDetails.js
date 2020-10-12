@@ -35,6 +35,9 @@ const PrintingDetails = MySQL.define('printingdetail', {
     correctiony: {
         type: Sequelize.FLOAT,
     },
+    price: {
+        type: Sequelize.FLOAT,
+    },
     clothe: {
         type: Sequelize.INTEGER,
     }

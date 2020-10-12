@@ -2,6 +2,8 @@ const Scene = require('telegraf/scenes/base');
 const {Telegraf} = require('telegraf');
 const {Extra} = Telegraf;
 
+const AboutUs = require('../models/About');
+
 
 module.exports = (bot) => {
     const aboutScene = new Scene('about');
@@ -12,8 +14,9 @@ module.exports = (bot) => {
         ctx.session.mesage_filter.forEach(msg => {
             ctx.deleteMessage(msg)
         })
-        const message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris pellentesque aliquam auctor. ' +
-            'Etiam facilisis iaculis tellus vitae suscipit. In leo felis, vulputate eu cursus ac, rutrum ut dolor.'
+
+        const aboutData = await AboutUs.findAll();
+        const message = aboutData[0].about;
         // ctx.reply(message, Extra.markup(markup => {
         //     return markup.inlineKeyboard([{text: ctx.i18n.t('menuBack'), callback_data: 'Back'}])
         // }))
